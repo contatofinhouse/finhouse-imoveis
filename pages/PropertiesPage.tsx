@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { supabase, Property } from '../supabaseClient';
 import { MapPin, BedDouble, Bath, Square, Search, AlertTriangle, X, Heart, ChevronLeft, ChevronRight, Share2, Car, ChevronDown } from 'lucide-react';
 import Button from '../components/Button';
@@ -23,7 +23,8 @@ const MOCK_PROPERTIES: Property[] = [
     ],
     type: "Apartamento",
     contract: "Venda",
-    status: "available"
+    status: "available",
+    description: "Espetacular cobertura duplex reformada, com vista panorâmica."
   },
   {
     id: 2,
@@ -85,15 +86,40 @@ const MOCK_PROPERTIES: Property[] = [
 // Carousel Component
 const ImageCarousel: React.FC<{ images: string[]; alt: string; onClick?: () => void }> = ({ images, alt, onClick }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const scrollToImage = (index: number) => {
+    if (scrollContainerRef.current) {
+        const width = scrollContainerRef.current.offsetWidth;
+        scrollContainerRef.current.scrollTo({
+            left: width * index,
+            behavior: 'smooth'
+        });
+    }
+  };
 
   const nextSlide = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    const newIndex = currentIndex === images.length - 1 ? 0 : currentIndex + 1;
+    scrollToImage(newIndex);
   };
 
   const prevSlide = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    const newIndex = currentIndex === 0 ? images.length - 1 : currentIndex - 1;
+    scrollToImage(newIndex);
+  };
+  
+  const handleScroll = () => {
+      if (scrollContainerRef.current) {
+          const scrollLeft = scrollContainerRef.current.scrollLeft;
+          const width = scrollContainerRef.current.offsetWidth;
+          // Calculate index based on scroll position
+          const index = Math.round(scrollLeft / width);
+          if (index !== currentIndex) {
+              setCurrentIndex(index);
+          }
+      }
   };
 
   if (!images || images.length === 0) {
@@ -106,33 +132,44 @@ const ImageCarousel: React.FC<{ images: string[]; alt: string; onClick?: () => v
 
   return (
     <div className="relative w-full h-full group">
-      <img 
-        src={images[currentIndex]} 
-        alt={`${alt} - Foto ${currentIndex + 1}`} 
-        className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
-        onClick={onClick}
-      />
+      {/* Scrollable Container */}
+      <div 
+        ref={scrollContainerRef}
+        className="w-full h-full flex overflow-x-auto snap-x snap-mandatory no-scrollbar scroll-smooth"
+        onScroll={handleScroll}
+      >
+        {images.map((src, idx) => (
+            <img 
+                key={idx}
+                src={src} 
+                alt={`${alt} - Foto ${idx + 1}`} 
+                className="w-full h-full object-cover flex-shrink-0 snap-center cursor-pointer"
+                onClick={onClick}
+                loading="lazy"
+            />
+        ))}
+      </div>
       
       {images.length > 1 && (
         <>
           <button 
             onClick={prevSlide}
-            className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white p-1 rounded-full text-brand-primary opacity-0 group-hover:opacity-100 transition-opacity z-10"
+            className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white p-1 rounded-full text-brand-primary opacity-0 group-hover:opacity-100 transition-opacity z-10 hidden md:block"
           >
             <ChevronLeft size={20} />
           </button>
           <button 
             onClick={nextSlide}
-            className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white p-1 rounded-full text-brand-primary opacity-0 group-hover:opacity-100 transition-opacity z-10"
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 hover:bg-white p-1 rounded-full text-brand-primary opacity-0 group-hover:opacity-100 transition-opacity z-10 hidden md:block"
           >
             <ChevronRight size={20} />
           </button>
           
-          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10">
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10 pointer-events-none">
             {images.map((_, idx) => (
               <div 
                 key={idx} 
-                className={`w-1.5 h-1.5 rounded-full shadow-sm ${idx === currentIndex ? 'bg-white' : 'bg-white/50'}`}
+                className={`w-1.5 h-1.5 rounded-full shadow-sm transition-all duration-300 ${idx === currentIndex ? 'bg-white scale-125' : 'bg-white/50'}`}
               />
             ))}
           </div>
@@ -191,7 +228,8 @@ const PropertiesPage: React.FC<PropertiesPageProps> = ({ favoritesOnly = false }
           condominio: item.condominio !== undefined ? item.condominio : 0,
           iptu: item.iptu !== undefined ? item.iptu : 0,
           type: item.type || 'Imóvel',
-          contract: item.contract || 'Venda' // Default to Venda if missing
+          contract: item.contract || 'Venda', // Default to Venda if missing
+          description: item.description || ''
         }));
 
         setProperties(normalizedData);
@@ -284,8 +322,8 @@ const PropertiesPage: React.FC<PropertiesPageProps> = ({ favoritesOnly = false }
         
         {/* Header / Search & Filters */}
         <div className="mb-10">
-          <div className="flex flex-col md:flex-row justify-between items-end md:items-center mb-6 gap-4">
-             <h1 className="text-3xl font-bold text-brand-primary">
+          <div className="flex flex-col md:flex-row justify-between items-center md:items-center mb-6 gap-4">
+             <h1 className="text-3xl font-bold text-brand-primary text-center md:text-left">
                 {favoritesOnly ? 'Meus Favoritos' : 'Encontre seu Imóvel'}
              </h1>
           </div>
@@ -293,8 +331,8 @@ const PropertiesPage: React.FC<PropertiesPageProps> = ({ favoritesOnly = false }
           <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
              <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
                 
-                {/* Search Bar */}
-                <div className="col-span-1 md:col-span-4 relative">
+                {/* Search Bar - Adjusted span */}
+                <div className="col-span-1 md:col-span-3 relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Search className="h-4 w-4 text-gray-400" />
                   </div>
@@ -307,18 +345,20 @@ const PropertiesPage: React.FC<PropertiesPageProps> = ({ favoritesOnly = false }
                   />
                 </div>
 
-                {/* Contract Filter (Venda/Aluguel) */}
-                <div className="col-span-1 md:col-span-2 relative">
-                   <select 
-                      className="block w-full pl-3 pr-8 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-1 focus:ring-brand-accent appearance-none cursor-pointer"
-                      value={filterContract}
-                      onChange={(e) => setFilterContract(e.target.value)}
+                {/* Contract Filter (Venda/Aluguel) - Converted to Toggle Buttons */}
+                <div className="col-span-1 md:col-span-3 flex bg-gray-100 p-1 rounded-lg h-[42px] items-center">
+                   <button
+                      onClick={() => setFilterContract(filterContract === 'Venda' ? 'Todos' : 'Venda')}
+                      className={`flex-1 h-full text-sm font-medium rounded-md transition-all duration-200 ${filterContract === 'Venda' ? 'bg-white text-brand-primary shadow-sm border border-gray-200 font-bold' : 'text-gray-500 hover:text-gray-700'}`}
                    >
-                      <option value="Todos">Finalidade</option>
-                      <option value="Venda">Comprar</option>
-                      <option value="Aluguel">Alugar</option>
-                   </select>
-                   <ChevronDown className="absolute right-3 top-2.5 h-4 w-4 text-gray-400 pointer-events-none" />
+                      Comprar
+                   </button>
+                   <button
+                      onClick={() => setFilterContract(filterContract === 'Aluguel' ? 'Todos' : 'Aluguel')}
+                      className={`flex-1 h-full text-sm font-medium rounded-md transition-all duration-200 ${filterContract === 'Aluguel' ? 'bg-white text-brand-primary shadow-sm border border-gray-200 font-bold' : 'text-gray-500 hover:text-gray-700'}`}
+                   >
+                      Alugar
+                   </button>
                 </div>
 
                 {/* Type Filter */}
@@ -638,11 +678,13 @@ const PropertiesPage: React.FC<PropertiesPageProps> = ({ favoritesOnly = false }
 
                <div className="mb-8">
                    <h3 className="font-bold text-gray-900 mb-2">Sobre este imóvel</h3>
-                   <p className="text-gray-600 leading-relaxed font-light">
-                       Excelente oportunidade de {selectedProperty.contract === 'Aluguel' ? 'alugar' : 'comprar'} um {selectedProperty.type.toLowerCase()} localizado em uma das melhores regiões da cidade. 
-                       Com {selectedProperty.area}m², este imóvel oferece todo o conforto e praticidade que você busca. 
-                       {selectedProperty.type !== 'Terreno' && `Possui ${selectedProperty.quartos} quartos espaçosos, ${selectedProperty.banheiros} banheiros e`} {selectedProperty.vagas} vagas de garagem. 
-                       Acabamento de alto padrão e pronto para morar. Agende sua visita!
+                   <p className="text-gray-600 leading-relaxed font-light whitespace-pre-line">
+                       {selectedProperty.description 
+                         ? selectedProperty.description 
+                         : `Excelente oportunidade de ${selectedProperty.contract === 'Aluguel' ? 'alugar' : 'comprar'} um ${selectedProperty.type.toLowerCase()} localizado em uma das melhores regiões da cidade. 
+                            Com ${selectedProperty.area}m², este imóvel oferece todo o conforto e praticidade que você busca. 
+                            ${selectedProperty.type !== 'Terreno' ? `Possui ${selectedProperty.quartos} quartos espaçosos, ${selectedProperty.banheiros} banheiros e` : ''} ${selectedProperty.vagas} vagas de garagem. 
+                            Acabamento de alto padrão e pronto para morar. Agende sua visita!`}
                    </p>
                </div>
 

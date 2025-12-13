@@ -31,10 +31,10 @@ const Contact: React.FC = () => {
           <div className="flex flex-col justify-center">
             <h2 className="text-brand-accent font-bold tracking-wider uppercase text-sm mb-3">Fale com a Gente</h2>
             <h3 className="text-4xl md:text-5xl font-bold text-brand-primary mb-8 tracking-tight">
-              Vamos tomar um café na Faria Lima?
+              Vamos conversar sobre o seu projeto?
             </h3>
             <p className="text-gray-600 mb-10 text-lg font-light">
-              Seja online ou presencialmente, estamos prontos para tirar suas dúvidas. Sem "financês", de forma clara e direta.
+              Estamos prontos para tirar suas dúvidas de forma ágil e digital. Sem "financês", de forma clara e direta.
             </p>
 
             <div className="space-y-8">

@@ -8,7 +8,12 @@ export const supabase = createClient(supabaseUrl, supabaseKey);
 export interface Property {
   id: number;
   title: string;
-  address: string;
+  description?: string;
+  address: string; // Keep for backward compatibility/display
+  state?: string;
+  city?: string;
+  neighborhood?: string;
+  street?: string;
   price: number;
   quartos: number;
   banheiros: number;
@@ -20,4 +25,7 @@ export interface Property {
   type: string;
   status: string;
   contract?: string; // 'Venda' or 'Aluguel'
+  owner_name?: string;
+  owner_email?: string;
+  owner_phone?: string;
 }

@@ -20,8 +20,8 @@ const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="bg-brand-primary text-white pt-20 pb-10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <footer className="bg-brand-dark text-white pt-20 pb-10 relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
           
           {/* Brand */}
@@ -88,7 +88,7 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500 font-light gap-4">
+        <div className="pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500 font-light gap-4 border-t border-gray-800">
           <p>&copy; {new Date().getFullYear()} {COMPANY_NAME}. Todos os direitos reservados.</p>
           <div className="flex gap-6">
              <Link to="/privacidade" className="hover:text-brand-accent transition-colors">Política de Privacidade</Link>

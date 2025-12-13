@@ -1,6 +1,6 @@
 import React from 'react';
 import Button from './Button';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, UploadCloud } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Hero: React.FC = () => {
@@ -35,17 +35,25 @@ const Hero: React.FC = () => {
         <div className="flex flex-col sm:flex-row gap-4 animate-fade-in-up animation-delay-400">
           <Button 
             onClick={() => navigate('/imoveis')}
-            className="flex items-center gap-2 shadow-indigo-500/50"
+            className="flex items-center justify-center gap-2 shadow-indigo-500/50"
           >
             Ver Imóveis <ArrowRight size={18} />
           </Button>
           <Button 
-            variant="outline" 
-            className="border-white text-white hover:bg-white hover:text-brand-dark backdrop-blur-sm bg-white/10"
-            onClick={() => document.getElementById('financial')?.scrollIntoView({ behavior: 'smooth' })}
+            variant="white" 
+            className="flex items-center justify-center gap-2"
+            onClick={() => navigate('/anunciar')}
           >
-            Simular Crédito
+             <UploadCloud size={18} /> Anuncie seu Imóvel
           </Button>
+        </div>
+        <div className="mt-4 animate-fade-in-up animation-delay-400 sm:hidden">
+            <button 
+                className="text-white/80 hover:text-white underline text-sm"
+                onClick={() => document.getElementById('financial')?.scrollIntoView({ behavior: 'smooth' })}
+            >
+                Simular Crédito
+            </button>
         </div>
       </div>
     </section>

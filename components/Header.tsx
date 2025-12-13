@@ -55,7 +55,11 @@ const Header: React.FC = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
-            <Link to="/" className={`text-3xl font-bold tracking-tighter ${scrolled || !isHome ? 'text-brand-primary' : 'text-white'}`}>
+            <Link 
+              to="/" 
+              onClick={() => setIsOpen(false)}
+              className={`text-3xl font-bold tracking-tighter ${scrolled || !isHome ? 'text-brand-primary' : 'text-white'}`}
+            >
               fin<span className="text-brand-accent">House</span>
             </Link>
           </div>
@@ -132,12 +136,14 @@ const Header: React.FC = () => {
               {link.label}
             </button>
           ))}
-          <button
-              onClick={() => handleNavigation('/favoritos')}
-              className="block px-3 py-4 text-lg font-bold text-gray-800 hover:text-red-500 hover:bg-gray-50 w-full text-center rounded-xl bg-transparent border-none flex items-center justify-center gap-2"
-            >
-              <Heart size={20} /> Meus Favoritos
-          </button>
+          {showFavorites && (
+            <button
+                onClick={() => handleNavigation('/favoritos')}
+                className="block px-3 py-4 text-lg font-bold text-gray-800 hover:text-red-500 hover:bg-gray-50 w-full text-center rounded-xl bg-transparent border-none flex items-center justify-center gap-2"
+              >
+                <Heart size={20} className={location.pathname === '/favoritos' ? 'fill-red-500 text-red-500' : ''} /> Meus Favoritos
+            </button>
+          )}
           <div className="pt-6 w-full">
             <Button 
               fullWidth 
