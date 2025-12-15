@@ -27,7 +27,7 @@ export const NAV_LINKS: NavItem[] = [
   { label: 'Imóveis à Venda', href: '/imoveis' },
   { label: 'Soluções Financeiras', href: '/#financial' },
   { label: 'Indique um Imóvel', href: '/indique' },
-  { label: 'Seja um Consultor', href: '/consultor' },
+  { label: 'Área do Corretor', href: '/ferramentas' }, // Updated link
 ];
 
 export const REAL_ESTATE_SERVICES: ServiceItem[] = [

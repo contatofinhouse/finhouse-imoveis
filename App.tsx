@@ -6,6 +6,7 @@ import PropertiesPage from './pages/PropertiesPage';
 import AdvertisePage from './pages/AdvertisePage';
 import ReferProperty from './pages/ReferProperty';
 import BecomeConsultant from './pages/BecomeConsultant';
+import BrokerTools from './pages/BrokerTools'; // New Import
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfUse from './pages/TermsOfUse';
 import Footer from './components/Footer';
@@ -25,6 +26,7 @@ const App: React.FC = () => {
             <Route path="/favoritos" element={<PropertiesPage favoritesOnly />} />
             <Route path="/anunciar" element={<AdvertisePage />} />
             <Route path="/indique" element={<ReferProperty />} />
+            <Route path="/ferramentas" element={<BrokerTools />} /> {/* New Route */}
             <Route path="/consultor" element={<BecomeConsultant />} />
             <Route path="/privacidade" element={<PrivacyPolicy />} />
             <Route path="/termos" element={<TermsOfUse />} />
