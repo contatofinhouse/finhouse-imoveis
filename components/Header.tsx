@@ -1,13 +1,25 @@
-import React, { useState } from 'react';
-import { Menu, X, UploadCloud } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Menu, X, Heart, UploadCloud } from 'lucide-react';
 import { NAV_LINKS } from '../constants';
 import Button from './Button';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const Header: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const isHome = location.pathname === '/';
+  const showFavorites = location.pathname === '/imoveis' || location.pathname === '/favoritos';
 
   const handleNavigation = (href: string) => {
     setIsOpen(false);
@@ -19,7 +31,7 @@ const Header: React.FC = () => {
 
     if (href.startsWith('/#')) {
       const targetId = href.replace('/#', '');
-      if (location.pathname === '/') {
+      if (isHome) {
         document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' });
       } else {
         navigate('/');
@@ -32,36 +44,53 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="fixed w-full z-50 bg-white border-b border-gray-100 py-2">
+    <header 
+      className={`fixed w-full z-50 transition-all duration-300 ${
+        scrolled || !isHome ? 'bg-white/95 backdrop-blur-lg shadow-md py-4' : 'bg-transparent py-6'
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-14">
+        <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
             <Link 
               to="/" 
               onClick={() => setIsOpen(false)}
-              className="text-2xl font-bold tracking-tighter"
+              className={`text-3xl font-bold tracking-tighter transition-colors ${scrolled || !isHome ? 'text-brand-primary' : 'text-white'}`}
             >
-              <span className="bg-gradient-to-r from-brand-accent to-[#D70466] bg-clip-text text-transparent">fin</span>
-              <span className="text-brand-dark">House</span>
+              fin<span className="text-brand-accent">House</span>
             </Link>
           </div>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex space-x-6 items-center">
+          <nav className="hidden md:flex space-x-8 items-center">
             {NAV_LINKS.map((link) => (
               <button
                 key={link.label}
                 onClick={() => handleNavigation(link.href)}
-                className="text-sm font-medium transition-colors hover:text-gray-900 text-brand-dark bg-transparent border-none cursor-pointer"
+                className={`text-base font-semibold transition-colors hover:text-brand-accent bg-transparent border-none cursor-pointer ${
+                  scrolled || !isHome ? 'text-gray-700' : 'text-gray-100'
+                }`}
               >
                 {link.label}
               </button>
             ))}
             
+            {showFavorites && (
+              <button
+                  onClick={() => handleNavigation('/favoritos')}
+                  className={`flex items-center gap-2 text-base font-semibold transition-colors hover:text-red-500 bg-transparent border-none cursor-pointer ${
+                    scrolled || !isHome ? 'text-gray-700' : 'text-gray-100'
+                  }`}
+              >
+                  <Heart size={20} className={location.pathname === '/favoritos' ? 'fill-red-500 text-red-500' : ''} />
+                  Meus Favoritos
+              </button>
+            )}
+
             <Button 
-              variant="primary" 
-              className="px-5 py-2 text-xs font-bold uppercase"
+              variant={scrolled || !isHome ? 'primary' : 'white'} 
+              className="px-6 py-2.5 text-sm font-semibold"
               onClick={() => handleNavigation('/#contact')}
             >
               Fale Conosco
@@ -69,20 +98,25 @@ const Header: React.FC = () => {
           </nav>
 
           {/* Mobile Actions Area */}
-          <div className="md:hidden flex items-center gap-2">
+          <div className="md:hidden flex items-center gap-3">
+            {/* Action Link outside hamburger */}
             <Link 
               to="/anunciar"
-              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[10px] font-bold bg-brand-accent text-white active:scale-95 transition-transform"
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all shadow-sm ${
+                scrolled || !isHome 
+                ? 'bg-brand-accent text-white' 
+                : 'bg-white text-brand-primary'
+              }`}
             >
-              <UploadCloud size={12} />
+              <UploadCloud size={14} />
               Anuncie
             </Link>
 
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="p-1.5 rounded-md text-brand-dark hover:bg-gray-100 focus:outline-none"
+              className={`p-2 rounded-md ${scrolled || !isHome ? 'text-gray-700' : 'text-white'} hover:text-brand-accent focus:outline-none`}
             >
-              {isOpen ? <X size={24} /> : <Menu size={24} />}
+              {isOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
           </div>
         </div>
@@ -94,17 +128,25 @@ const Header: React.FC = () => {
           isOpen ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-0 h-0 overflow-hidden'
         }`}
       >
-        <div className="px-4 pt-2 pb-6 space-y-1 flex flex-col items-center">
+        <div className="px-4 pt-4 pb-8 space-y-2 sm:px-3 flex flex-col items-center">
           {NAV_LINKS.map((link) => (
              <button
               key={link.label}
               onClick={() => handleNavigation(link.href)}
-              className="block px-3 py-3 text-base font-medium text-brand-dark hover:bg-gray-50 w-full text-center rounded-xl bg-transparent border-none"
+              className="block px-3 py-4 text-lg font-bold text-gray-800 hover:text-brand-accent hover:bg-gray-50 w-full text-center rounded-xl bg-transparent border-none"
             >
               {link.label}
             </button>
           ))}
-          <div className="pt-4 w-full px-4">
+          {showFavorites && (
+            <button
+                onClick={() => handleNavigation('/favoritos')}
+                className="block px-3 py-4 text-lg font-bold text-gray-800 hover:text-red-500 hover:bg-gray-50 w-full text-center rounded-xl bg-transparent border-none flex items-center justify-center gap-2"
+              >
+                <Heart size={20} className={location.pathname === '/favoritos' ? 'fill-red-500 text-red-500' : ''} /> Meus Favoritos
+            </button>
+          )}
+          <div className="pt-6 w-full px-4">
             <Button 
               fullWidth 
               onClick={() => handleNavigation('/#contact')}

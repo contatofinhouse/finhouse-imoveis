@@ -20,8 +20,8 @@ const App: React.FC = () => {
       <ScrollToTop />
       <div className="min-h-screen flex flex-col font-sans">
         <Header />
-        {/* pb-16 adds space for the mobile bottom nav (h-16) to prevent overlap */}
-        <main className="flex-grow pb-16 md:pb-0">
+        {/* pb-24 adds space for the mobile bottom nav on small screens */}
+        <main className="flex-grow pb-24 md:pb-0">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/imoveis" element={<PropertiesPage />} />
@@ -35,7 +35,7 @@ const App: React.FC = () => {
           </Routes>
         </main>
         <Footer />
-        {/* Mobile App-style Nav Fixed at bottom-0 */}
+        {/* Mobile App-style Nav */}
         <MobileNav />
         <FloatingWhatsApp />
       </div>
