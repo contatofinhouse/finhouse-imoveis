@@ -26,7 +26,10 @@ const Footer: React.FC = () => {
           
           {/* Brand */}
           <div className="col-span-1 md:col-span-1">
-            <h3 className="text-3xl font-bold mb-6 tracking-tighter">fin<span className="text-brand-accent">House</span></h3>
+            <h3 className="text-3xl font-bold mb-6 tracking-tighter">
+              <span className="bg-gradient-to-r from-brand-accent to-[#D70466] bg-clip-text text-transparent">fin</span>
+              <span className="text-white">House</span>
+            </h3>
             <p className="text-gray-400 text-sm leading-relaxed font-light mb-4">
               Reinventando o acesso ao crédito e a imóveis com tecnologia e segurança jurídica.
             </p>

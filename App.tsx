@@ -6,12 +6,13 @@ import PropertiesPage from './pages/PropertiesPage';
 import AdvertisePage from './pages/AdvertisePage';
 import ReferProperty from './pages/ReferProperty';
 import BecomeConsultant from './pages/BecomeConsultant';
-import BrokerTools from './pages/BrokerTools'; // New Import
+import BrokerTools from './pages/BrokerTools';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfUse from './pages/TermsOfUse';
 import Footer from './components/Footer';
 import FloatingWhatsApp from './components/FloatingWhatsApp';
 import ScrollToTop from './components/ScrollToTop';
+import MobileNav from './components/MobileNav';
 
 const App: React.FC = () => {
   return (
@@ -19,20 +20,23 @@ const App: React.FC = () => {
       <ScrollToTop />
       <div className="min-h-screen flex flex-col font-sans">
         <Header />
-        <main className="flex-grow">
+        {/* pb-16 adds space for the mobile bottom nav (h-16) to prevent overlap */}
+        <main className="flex-grow pb-16 md:pb-0">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/imoveis" element={<PropertiesPage />} />
             <Route path="/favoritos" element={<PropertiesPage favoritesOnly />} />
             <Route path="/anunciar" element={<AdvertisePage />} />
             <Route path="/indique" element={<ReferProperty />} />
-            <Route path="/ferramentas" element={<BrokerTools />} /> {/* New Route */}
+            <Route path="/ferramentas" element={<BrokerTools />} />
             <Route path="/consultor" element={<BecomeConsultant />} />
             <Route path="/privacidade" element={<PrivacyPolicy />} />
             <Route path="/termos" element={<TermsOfUse />} />
           </Routes>
         </main>
         <Footer />
+        {/* Mobile App-style Nav Fixed at bottom-0 */}
+        <MobileNav />
         <FloatingWhatsApp />
       </div>
     </Router>
