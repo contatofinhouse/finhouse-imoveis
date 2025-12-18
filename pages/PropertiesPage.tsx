@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { supabase, Property } from '../supabaseClient';
 import { MapPin, BedDouble, Bath, Square, Search, AlertTriangle, X, Heart, ChevronLeft, ChevronRight, Share2, Car, ChevronDown } from 'lucide-react';
@@ -280,9 +281,12 @@ const PropertiesPage: React.FC<PropertiesPageProps> = ({ favoritesOnly = false }
   };
 
   const filteredProperties = properties.filter(p => {
+    const titleStr = (p.title || '').toLowerCase();
+    const addrStr = (p.address || '').toLowerCase();
+    const searchStr = (searchTerm || '').toLowerCase();
+
     // 1. Search Term
-    const matchesSearch = p.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          p.address.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = titleStr.includes(searchStr) || addrStr.includes(searchStr);
     
     // 2. Favorites
     const matchesFavorites = favoritesOnly ? favorites.includes(p.id) : true;
