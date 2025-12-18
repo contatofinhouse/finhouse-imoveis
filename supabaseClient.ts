@@ -1,3 +1,4 @@
+
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = 'https://wfgxstdymupgyjrxbasl.supabase.co';
@@ -28,4 +29,5 @@ export interface Property {
   owner_name?: string;
   owner_email?: string;
   owner_phone?: string;
+  taxa?: number; // Taxa de juros específica do imóvel/produto vinda do Supabase
 }
