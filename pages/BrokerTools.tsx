@@ -6,7 +6,7 @@ import {
   PenTool, Copy, RefreshCw, Search, Calculator, 
   PieChart, DollarSign, Check, FileText, User, 
   Printer, Building, Trash2, ClipboardList, Plus, Minus, 
-  Camera, AlertTriangle, ShieldCheck, Home, Briefcase, Scale, MapPin, Type as TypeIcon, Globe, Phone
+  Camera, AlertTriangle, ShieldCheck, Home, Briefcase, Scale, MapPin, Type as TypeIcon, Globe, Phone, Users
 } from 'lucide-react';
 import { supabase, Property } from '../supabaseClient';
 import * as htmlToImage from 'html-to-image';
@@ -28,10 +28,10 @@ const BrokerTools: React.FC = () => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [editorData, setEditorData] = useState({
-    title: 'Oportunidade Exclusiva',
-    location: 'São Paulo, SP',
+    title: 'OPORTUNIDADE EXCLUSIVA',
+    location: 'SÃO PAULO, SP',
     price: 'R$ 0,00',
-    brokerName: 'Seu Nome',
+    brokerName: 'SEU NOME',
     brokerPhone: '(11) 99999-9999',
     image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&q=80&w=800' 
   });
@@ -56,17 +56,17 @@ const BrokerTools: React.FC = () => {
   const anexoRef = useRef<HTMLDivElement>(null);
   const [vistoriaPhotos, setVistoriaPhotos] = useState<VistoriaPhoto[]>([]);
   const [vistoriaData, setVistoriaData] = useState({
-    tipo: 'Entrada',
+    tipo: 'ENTRADA',
     data: new Date().toISOString().split('T')[0],
     imovel: '',
     proprietario: '',
     inquilino: '',
     vistoriador: '',
     comodos: [
-      { nome: 'Sala', estado: 'Bom', obs: '' },
-      { nome: 'Cozinha', estado: 'Bom', obs: '' },
-      { nome: 'Banheiro', estado: 'Bom', obs: '' },
-      { nome: 'Quarto 1', estado: 'Bom', obs: '' }
+      { nome: 'SALA', estado: 'BOM', obs: '' },
+      { nome: 'COZINHA', estado: 'BOM', obs: '' },
+      { nome: 'BANHEIRO', estado: 'BOM', obs: '' },
+      { nome: 'QUARTO 1', estado: 'BOM', obs: '' }
     ]
   });
 
@@ -91,12 +91,12 @@ const BrokerTools: React.FC = () => {
       setSelectedProperty(prop);
       setEditorData({ 
         ...editorData, 
-        title: prop.title, 
-        location: prop.neighborhood ? `${prop.neighborhood}, ${prop.city}` : prop.address, 
+        title: prop.title.toUpperCase(), 
+        location: (prop.neighborhood ? `${prop.neighborhood}, ${prop.city}` : prop.address).toUpperCase(), 
         price: formatCurrency(prop.price), 
         image: prop.images[0] || editorData.image 
       });
-      setGeneratedCaption(`OPORTUNIDADE FINHOUSE\n\nIMOVEL: ${prop.title.toUpperCase()}\nLOCAL: ${prop.address}\n\nVALOR: ${formatCurrency(prop.price)}\nAREA: ${prop.area}m2 | ${prop.quartos} QUARTOS\n\nMe chame agora para agendar uma visita!`);
+      setGeneratedCaption(`OPORTUNIDADE finHouse\n\nIMOVEL: ${prop.title.toUpperCase()}\nLOCAL: ${prop.address.toUpperCase()}\n\nVALOR: ${formatCurrency(prop.price)}\nAREA: ${prop.area}M2 | ${prop.quartos} QUARTOS\n\nME CHAME AGORA PARA AGENDAR UMA VISITA!`);
     }
   };
 
@@ -106,7 +106,7 @@ const BrokerTools: React.FC = () => {
     try {
       const dataUrl = await htmlToImage.toPng(previewRef.current, { cacheBust: true, pixelRatio: 3, backgroundColor: '#0f172a' });
       const link = document.createElement('a');
-      link.download = `finhouse-${format}-${Date.now()}.png`;
+      link.download = `finHouse-${format}-${Date.now()}.png`;
       link.href = dataUrl;
       link.click();
     } finally { setDownloading(false); }
@@ -121,24 +121,77 @@ const BrokerTools: React.FC = () => {
   // --- CHECKLIST GENERATOR ---
   const generateChecklist = () => {
     let list = `CHECKLIST DE AUDITORIA - finHouse\n`;
-    list += `FINALIDADE: ${checklistType === 'sale' ? 'Compra/Venda' : 'Locação'}\n`;
-    list += `PERFIL: ${checklistRole === 'buyer' ? 'Comprador/Inquilino' : 'Vendedor/Proprietário'}\n`;
-    list += `-------------------------\n\n`;
+    list += `FINALIDADE: ${checklistType === 'sale' ? 'COMPRA E VENDA' : 'LOCACAO'}\n`;
+    list += `PERFIL: ${checklistRole === 'buyer' ? 'COMPRADOR / INQUILINO' : 'VENDEDOR / PROPRIETARIO'}\n`;
+    list += `-------------------------------------------\n\n`;
 
     if (checklistRole === 'seller') {
         if (sellerType === 'pf') {
-            list += `DOCS. VENDEDOR (PF):\n[ ] RG e CPF\n[ ] Comprovante de Residência\n[ ] Certidão de Estado Civil\n`;
-            if (maritalStatus === 'married') list += `[ ] Docs do Cônjuge\n[ ] Pacto Antenupcial\n`;
-            if (isEntrepreneur) list += `\nRISCO EMPRESÁRIO:\n[ ] CND Federal da Empresa\n[ ] CND Trabalhista PJ\n`;
+            list += `* DOCS. VENDEDOR (PESSOA FISICA):\n`;
+            list += `[ ] RG E CPF (OU CNH VALIDA)\n`;
+            list += `[ ] COMPROVANTE DE RESIDENCIA (ULTIMOS 60 DIAS)\n`;
+            list += `[ ] CERTIDAO DE ESTADO CIVIL (ATUALIZADA 90 DIAS)\n`;
+            
+            if (maritalStatus === 'married') {
+                list += `[ ] DOCUMENTOS DO CONJUGE (RG/CPF)\n`;
+                list += `[ ] PACTO ANTENUPCIAL (SE HOUVER)\n`;
+                list += `NOTA: CONJUGE DEVE ASSINAR A VENIA CONJUGAL.\n`;
+            }
+
+            if (isEntrepreneur) {
+                list += `\n* AUDITORIA DE RISCO (SOCIO / EMPRESARIO):\n`;
+                list += `[ ] CND DE TRIBUTOS FEDERAIS DA(S) EMPRESA(S)\n`;
+                list += `[ ] CND TRABALHISTA DA PJ (TST/BNDT)\n`;
+                list += `[ ] CERTIDAO DE FALENCIA E RECUPERACAO JUDICIAL\n`;
+                list += `JUSTIFICATIVA: EVITAR FRAUDE A EXECUCAO POR DESCONSIDERACAO DA PJ.\n`;
+            }
+
+            list += `\n* CERTIDOES DO VENDEDOR (PF):\n`;
+            list += `[ ] CERTIDAO DE PROTESTOS (CARTORIOS 1 A 10)\n`;
+            list += `[ ] CERTIDAO DISTRIBUIDOR CIVEL E CRIMINAL (ESTADUAL/FEDERAL)\n`;
+            list += `[ ] CERTIDAO NEGATIVA DE DEBITOS TRABALHISTAS (CNDT)\n`;
         } else {
-            list += `DOCS. VENDEDOR (PJ):\n[ ] Contrato Social\n[ ] Cartão CNPJ\n[ ] CND Federal/INSS\n`;
+            list += `* DOCS. VENDEDOR (PESSOA JURIDICA):\n`;
+            list += `[ ] CONTRATO SOCIAL CONSOLIDADO OU ESTATUTO\n`;
+            list += `[ ] CARTAO CNPJ ATUALIZADO\n`;
+            list += `[ ] CERTIDAO SIMPLIFICADA DA JUCESP\n`;
+            list += `[ ] RG/CPF DOS SOCIOS ADMINISTRADORES\n`;
+            list += `[ ] CND DE TRIBUTOS FEDERAIS E INSS\n`;
+            list += `[ ] CND DE TRIBUTOS ESTADUAIS E MUNICIPAIS\n`;
+            list += `[ ] CND TRABALHISTA (PJ)\n`;
+            list += `[ ] CERTIDAO DE FALENCIA E RECUPERACAO JUDICIAL\n`;
         }
-        list += `\nDOCS. IMÓVEL:\n[ ] Matrícula Atualizada\n[ ] Capa do IPTU\n[ ] Negativa de Débitos Municipais\n`;
+
+        list += `\n* DOCUMENTACAO DO IMOVEL:\n`;
+        list += `[ ] MATRICULA ATUALIZADA COM ONUS E REIPERSECUTORIA\n`;
+        list += `[ ] CAPA DO IPTU (EXERCICIO ATUAL)\n`;
+        list += `[ ] CERTIDAO NEGATIVA DE DEBITOS MUNICIPAIS DO IMOVEL\n`;
+        list += `[ ] DECLARACAO DE QUITACAO CONDOMINIAL (ASSINADA PELO SINDICO)\n`;
     } else {
-        list += `DOCS. PESSOAIS:\n[ ] RG/CPF\n[ ] Comprovante de Renda\n`;
-        if (paymentType === 'finance') list += `[ ] Extrato FGTS\n[ ] Ficha Cadastral Banco\n`;
+        list += `* DOCUMENTACAO PESSOAL:\n`;
+        list += `[ ] RG E CPF\n`;
+        list += `[ ] COMPROVANTE DE RESIDENCIA\n`;
+        list += `[ ] COMPROVANTE DE ESTADO CIVIL\n\n`;
+        
+        list += `* COMPROVACAO DE RENDA:\n`;
+        list += `[ ] 3 ULTIMOS HOLERITES (CLT) OU EXTRATOS 3 MESES (AUTONOMO)\n`;
+        list += `[ ] DECLARACAO COMPLETA DE IRPF + RECIBO DE ENTREGA\n`;
+        
+        if (paymentType === 'finance') {
+            list += `\n* PARA FINANCIAMENTO:\n`;
+            list += `[ ] EXTRATO FGTS (SE FOR UTILIZAR)\n`;
+            list += `[ ] FICHA CADASTRAL DO BANCO PREENCHIDA\n`;
+        }
     }
+
     return list;
+  };
+
+  const copyChecklist = () => {
+    navigator.clipboard.writeText(generateChecklist()).then(() => {
+      setChecklistCopied(true);
+      setTimeout(() => setChecklistCopied(false), 2000);
+    });
   };
 
   // --- VISTORIA ACTIONS ---
@@ -165,7 +218,7 @@ const BrokerTools: React.FC = () => {
         const anexoH = (doc.getImageProperties(anexoImg).height * pdfWidth) / doc.getImageProperties(anexoImg).width;
         doc.addImage(anexoImg, 'PNG', 0, 0, pdfWidth, anexoH);
       }
-      doc.save(`Vistoria_${vistoriaData.inquilino || 'finhouse'}.pdf`);
+      doc.save(`VISTORIA_${vistoriaData.inquilino || 'finHouse'}.pdf`);
     } finally { setIsGeneratingPDF(false); }
   };
 
@@ -174,9 +227,9 @@ const BrokerTools: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10">
         <div className="bg-brand-primary rounded-[2.5rem] p-8 md:p-12 text-white shadow-2xl relative overflow-hidden flex flex-col xl:flex-row justify-between items-center gap-8">
           <div className="relative z-10 text-center xl:text-left">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-brand-accent/30 text-brand-accent border border-brand-accent/50 text-[10px] font-black uppercase tracking-[0.2em] mb-4">Célula de Inteligência</span>
+            <span className="inline-block px-4 py-1.5 rounded-full bg-brand-accent/30 text-brand-accent border border-brand-accent/50 text-[10px] font-black uppercase tracking-[0.2em] mb-4">CELULA DE INTELIGENCIA</span>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tighter mb-2">finHouse <span className="text-brand-accent">OS</span></h1>
-            <p className="text-gray-400 text-sm max-w-md font-light">Ecossistema de alta performance para o consultor imobiliário moderno.</p>
+            <p className="text-gray-400 text-sm max-w-md font-light">Ecossistema de alta performance para o consultor imobiliario moderno.</p>
           </div>
           <div className="bg-white/5 p-2 rounded-2xl flex flex-wrap justify-center gap-2 relative z-10 backdrop-blur-xl border border-white/10">
             <button onClick={() => setActiveTab('marketing')} className={`flex items-center gap-2 px-6 py-3 rounded-xl text-xs font-bold transition-all ${activeTab === 'marketing' ? 'bg-brand-accent text-white shadow-lg shadow-brand-accent/20' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}><ImageIcon size={16} /> Marketing</button>
@@ -187,16 +240,15 @@ const BrokerTools: React.FC = () => {
         </div>
       </div>
 
-      {/* --- TAB: MARKETING (RESTORED FULL) --- */}
+      {/* --- TAB: MARKETING --- */}
       {activeTab === 'marketing' && (
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-10 animate-fade-in-up">
-          {/* Sidebar Editor */}
           <div className="lg:col-span-4 space-y-6">
             <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
-               <h3 className="font-black text-brand-primary mb-6 flex items-center gap-2 uppercase text-xs tracking-widest"><Search size={16} className="text-brand-accent" /> 1. Escolha o Imóvel</h3>
+               <h3 className="font-black text-brand-primary mb-6 flex items-center gap-2 uppercase text-xs tracking-widest"><Search size={16} className="text-brand-accent" /> 1. Escolha o Imovel</h3>
                <select className="w-full p-4 border border-gray-100 rounded-2xl bg-gray-50 text-sm focus:ring-2 focus:ring-brand-accent transition-all font-bold" onChange={handlePropertySelect} defaultValue="">
-                  <option value="" disabled>Selecione um imóvel do banco...</option>
-                  {properties.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
+                  <option value="" disabled>Selecione um imovel do banco...</option>
+                  {properties.map(p => <option key={p.id} value={p.id}>{p.title.toUpperCase()}</option>)}
                </select>
             </div>
 
@@ -213,18 +265,18 @@ const BrokerTools: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Título na Arte</label>
-                    <input type="text" className="w-full p-3 border border-gray-100 rounded-xl bg-gray-50 text-xs font-bold" value={editorData.title} onChange={e => setEditorData({...editorData, title: e.target.value})} />
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Titulo na Arte</label>
+                    <input type="text" className="w-full p-3 border border-gray-100 rounded-xl bg-gray-50 text-xs font-bold uppercase" value={editorData.title} onChange={e => setEditorData({...editorData, title: e.target.value.toUpperCase()})} />
                   </div>
 
                   <div>
-                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Localização</label>
-                    <input type="text" className="w-full p-3 border border-gray-100 rounded-xl bg-gray-50 text-xs font-bold" value={editorData.location} onChange={e => setEditorData({...editorData, location: e.target.value})} />
+                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Localizacao</label>
+                    <input type="text" className="w-full p-3 border border-gray-100 rounded-xl bg-gray-50 text-xs font-bold uppercase" value={editorData.location} onChange={e => setEditorData({...editorData, location: e.target.value.toUpperCase()})} />
                   </div>
 
                   <div>
                     <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Nome do Consultor</label>
-                    <input type="text" className="w-full p-3 border border-gray-100 rounded-xl bg-gray-50 text-xs font-bold" value={editorData.brokerName} onChange={e => setEditorData({...editorData, brokerName: e.target.value})} />
+                    <input type="text" className="w-full p-3 border border-gray-100 rounded-xl bg-gray-50 text-xs font-bold uppercase" value={editorData.brokerName} onChange={e => setEditorData({...editorData, brokerName: e.target.value.toUpperCase()})} />
                   </div>
 
                   <div>
@@ -245,26 +297,20 @@ const BrokerTools: React.FC = () => {
             </div>
           </div>
 
-          {/* Canvas Preview Area */}
           <div className="lg:col-span-8 flex flex-col items-center">
             <div className="bg-gray-200 p-8 md:p-12 rounded-[3rem] w-full flex items-center justify-center min-h-[700px] shadow-inner overflow-hidden">
                <div ref={previewRef} className={`relative shadow-2xl overflow-hidden bg-brand-dark transition-all duration-500 ${format === 'story' ? 'w-[360px] h-[640px]' : 'w-[500px] h-[500px]'}`}>
-                  {/* Property Image with crossOrigin */}
                   <img src={editorData.image} className="absolute inset-0 w-full h-full object-cover" crossOrigin="anonymous" />
-                  
-                  {/* Tech Overlays */}
                   <div className="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/20 to-brand-dark/40"></div>
                   
-                  {/* Branding Header */}
                   <div className="absolute top-10 left-10 right-10 flex justify-between items-start">
-                     <div className="text-white font-black text-2xl tracking-tighter">fin<span className="text-brand-accent">House</span></div>
+                     <div className="text-white font-black text-2xl tracking-tighter uppercase">finHouse</div>
                      <div className="text-right flex flex-col items-end">
                         <span className="text-white font-black text-[10px] uppercase tracking-widest mb-1">finhousebr.com.br</span>
                         <div className="h-0.5 w-10 bg-brand-accent"></div>
                      </div>
                   </div>
 
-                  {/* Main Content */}
                   <div className="absolute bottom-12 left-10 right-10 text-white space-y-4">
                      <div className="space-y-1">
                         <span className="bg-brand-accent text-white px-3 py-1 rounded-md text-[9px] font-black uppercase tracking-widest">{editorData.price}</span>
@@ -295,7 +341,6 @@ const BrokerTools: React.FC = () => {
                      </div>
                   </div>
 
-                  {/* Aesthetic Borders */}
                   <div className="absolute inset-4 border border-white/5 pointer-events-none rounded-xl"></div>
                </div>
             </div>
@@ -303,8 +348,89 @@ const BrokerTools: React.FC = () => {
             <Button onClick={handleDownloadMarketing} disabled={downloading || !selectedProperty} className="mt-8 w-full max-w-md py-5 rounded-2xl shadow-2xl shadow-brand-accent/20 text-xs font-black uppercase tracking-[0.2em]">
                {downloading ? <RefreshCw className="animate-spin" /> : <Download />} {downloading ? 'Processando Imagem...' : 'Baixar Arte em HD'}
             </Button>
-            <p className="text-[10px] text-gray-400 mt-4 uppercase font-black tracking-widest">A imagem será salva em 300 DPI para máxima fidelidade.</p>
+            <p className="text-[10px] text-gray-400 mt-4 uppercase font-black tracking-widest">A imagem sera salva em 300 DPI para maxima fidelidade.</p>
           </div>
+        </div>
+      )}
+
+      {/* --- TAB: CHECKLIST --- */}
+      {activeTab === 'checklist' && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-fade-in-up">
+            <div className="lg:col-span-5 space-y-6">
+                <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
+                    <h3 className="text-xl font-bold text-brand-primary flex items-center gap-2 mb-6 uppercase tracking-tighter"><Scale className="text-brand-accent" /> Perfil da Transacao</h3>
+                    <div className="space-y-6">
+                        <div>
+                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Operacao</label>
+                            <div className="grid grid-cols-2 gap-2 bg-gray-100 p-1 rounded-xl">
+                                <button onClick={() => setChecklistType('sale')} className={`py-2 rounded-lg text-xs font-bold transition-all uppercase ${checklistType === 'sale' ? 'bg-white shadow-sm text-brand-primary' : 'text-gray-500'}`}>Venda</button>
+                                <button onClick={() => setChecklistType('rent')} className={`py-2 rounded-lg text-xs font-bold transition-all uppercase ${checklistType === 'rent' ? 'bg-white shadow-sm text-brand-primary' : 'text-gray-500'}`}>Locacao</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Cliente Atendido</label>
+                            <div className="grid grid-cols-2 gap-2 bg-gray-100 p-1 rounded-xl">
+                                <button onClick={() => setChecklistRole('buyer')} className={`py-2 rounded-lg text-xs font-bold transition-all uppercase ${checklistRole === 'buyer' ? 'bg-brand-primary text-white shadow-lg' : 'text-gray-500'}`}>{checklistType === 'sale' ? 'Comprador' : 'Locatario'}</button>
+                                <button onClick={() => setChecklistRole('seller')} className={`py-2 rounded-lg text-xs font-bold transition-all uppercase ${checklistRole === 'seller' ? 'bg-brand-primary text-white shadow-lg' : 'text-gray-500'}`}>{checklistType === 'sale' ? 'Vendedor' : 'Proprietario'}</button>
+                            </div>
+                        </div>
+                        {checklistRole === 'seller' && (
+                            <div className="p-5 bg-brand-light border border-gray-100 rounded-2xl space-y-4 animate-fade-in">
+                                <h4 className="text-sm font-bold text-brand-accent flex items-center gap-2 uppercase tracking-tighter"><Briefcase size={16}/> Detalhes do Vendedor</h4>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button onClick={() => setSellerType('pf')} className={`py-2 px-3 rounded-lg text-[10px] font-bold border uppercase ${sellerType === 'pf' ? 'bg-brand-accent text-white border-brand-accent' : 'bg-white text-gray-500 border-gray-200'}`}>Pessoa Fisica</button>
+                                    <button onClick={() => setSellerType('pj')} className={`py-2 px-3 rounded-lg text-[10px] font-bold border uppercase ${sellerType === 'pj' ? 'bg-brand-accent text-white border-brand-accent' : 'bg-white text-gray-500 border-gray-200'}`}>Pessoa Juridica</button>
+                                </div>
+                                {sellerType === 'pf' && (
+                                    <>
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-widest">Estado Civil</label>
+                                            <div className="flex gap-2">
+                                                <button onClick={() => setMaritalStatus('single')} className={`flex-1 py-1.5 rounded-md text-[10px] font-bold uppercase ${maritalStatus === 'single' ? 'bg-brand-primary text-white' : 'bg-white text-gray-400 border'}`}>Solteiro/Divorciado</button>
+                                                <button onClick={() => setMaritalStatus('married')} className={`flex-1 py-1.5 rounded-md text-[10px] font-bold uppercase ${maritalStatus === 'married' ? 'bg-brand-primary text-white' : 'bg-white text-gray-400 border'}`}>Casado/Uniao E.</button>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-gray-100">
+                                            <div>
+                                                <p className="text-[10px] font-bold text-brand-primary uppercase tracking-tighter">O Vendedor e Socio/Empresario?</p>
+                                                <p className="text-[9px] text-gray-400 uppercase font-light">Ativa auditoria de risco da PJ</p>
+                                            </div>
+                                            <button onClick={() => setIsEntrepreneur(!isEntrepreneur)} className={`w-10 h-6 rounded-full transition-all flex items-center px-1 ${isEntrepreneur ? 'bg-brand-accent justify-end' : 'bg-gray-200 justify-start'}`}><div className="w-4 h-4 bg-white rounded-full shadow-sm"></div></button>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        )}
+                        {checklistRole === 'buyer' && (
+                            <div>
+                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Pagamento</label>
+                                <div className="grid grid-cols-2 gap-2 bg-gray-100 p-1 rounded-xl">
+                                    <button onClick={() => setPaymentType('cash')} className={`py-2 rounded-lg text-xs font-bold transition-all uppercase ${paymentType === 'cash' ? 'bg-white shadow-sm text-brand-primary' : 'text-gray-500'}`}>A Vista</button>
+                                    <button onClick={() => setPaymentType('finance')} className={`py-2 rounded-lg text-xs font-bold transition-all uppercase ${paymentType === 'finance' ? 'bg-white shadow-sm text-brand-primary' : 'text-gray-500'}`}>Financiamento</button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+            <div className="lg:col-span-7">
+                <div className="bg-brand-primary p-10 rounded-[2rem] shadow-xl text-white relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-8 opacity-10"><Scale size={120} /></div>
+                    <div className="flex justify-between items-center mb-8 relative z-10">
+                        <div><h3 className="text-2xl font-bold uppercase tracking-tighter">Listagem Gerada</h3><p className="text-gray-400 text-sm uppercase font-light">Pronta para envio ao cliente.</p></div>
+                        <button onClick={copyChecklist} className="flex items-center gap-2 bg-white text-brand-primary px-5 py-2.5 rounded-xl font-bold text-xs hover:scale-105 transition-transform active:scale-95 uppercase">
+                            {checklistCopied ? <CheckCircle size={16} /> : <Copy size={16} />}{checklistCopied ? 'Copiado!' : 'Copiar Tudo'}
+                        </button>
+                    </div>
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-sm relative z-10">
+                        <pre className="font-mono text-xs whitespace-pre-wrap leading-relaxed text-gray-200 uppercase">{generateChecklist()}</pre>
+                    </div>
+                    <div className="mt-8 flex items-center gap-4 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-2xl text-[10px] text-yellow-200 relative z-10">
+                        <AlertTriangle size={24} className="shrink-0" />
+                        <p className="uppercase">Este checklist e uma base tecnica. Sempre valide certidoes de distribuidor estadual e federal (civel e criminal) para seguranca total.</p>
+                    </div>
+                </div>
+            </div>
         </div>
       )}
 
@@ -318,65 +444,100 @@ const BrokerTools: React.FC = () => {
                     <Button onClick={handleGeneratePDF} disabled={isGeneratingPDF} className="h-10 py-0 text-[10px] font-black uppercase">{isGeneratingPDF ? '...' : 'PDF'}</Button>
                  </div>
                  <div className="space-y-4">
-                    <input type="text" className="w-full p-4 border rounded-2xl bg-gray-50 text-sm font-bold" placeholder="Endereço" value={vistoriaData.imovel} onChange={e => setVistoriaData({...vistoriaData, imovel: e.target.value})} />
-                    <input type="text" className="w-full p-4 border rounded-2xl bg-gray-50 text-sm font-bold" placeholder="Inquilino" value={vistoriaData.inquilino} onChange={e => setVistoriaData({...vistoriaData, inquilino: e.target.value})} />
-                    <input type="text" className="w-full p-4 border rounded-2xl bg-gray-50 text-sm font-bold" placeholder="Vistoriador" value={vistoriaData.vistoriador} onChange={e => setVistoriaData({...vistoriaData, vistoriador: e.target.value})} />
+                    <input type="text" className="w-full p-4 border rounded-2xl bg-gray-50 text-sm font-bold uppercase" placeholder="ENDERECO" value={vistoriaData.imovel} onChange={e => setVistoriaData({...vistoriaData, imovel: e.target.value.toUpperCase()})} />
+                    <input type="text" className="w-full p-4 border rounded-2xl bg-gray-50 text-sm font-bold uppercase" placeholder="INQUILINO" value={vistoriaData.inquilino} onChange={e => setVistoriaData({...vistoriaData, inquilino: e.target.value.toUpperCase()})} />
+                    <input type="text" className="w-full p-4 border rounded-2xl bg-gray-50 text-sm font-bold uppercase" placeholder="VISTORIADOR" value={vistoriaData.vistoriador} onChange={e => setVistoriaData({...vistoriaData, vistoriador: e.target.value.toUpperCase()})} />
                     <div className="space-y-2">
                        {vistoriaData.comodos.map((c, i) => (
-                          <div key={i} className="p-4 bg-gray-50 rounded-2xl border border-gray-100"><input type="text" className="font-bold text-xs bg-transparent w-full mb-2 uppercase" value={c.nome} onChange={e => {const cp = [...vistoriaData.comodos]; cp[i].nome = e.target.value; setVistoriaData({...vistoriaData, comodos: cp})}} /><div className="flex gap-2"><select className="text-[10px] p-2 rounded-lg border bg-white font-bold uppercase" value={c.estado} onChange={e => {const cp = [...vistoriaData.comodos]; cp[i].estado = e.target.value; setVistoriaData({...vistoriaData, comodos: cp})}}><option>Bom</option><option>Regular</option><option>Ruim</option></select><input type="text" className="flex-grow text-[10px] p-2 rounded-lg border bg-white" placeholder="Observações" value={c.obs} onChange={e => {const cp = [...vistoriaData.comodos]; cp[i].obs = e.target.value; setVistoriaData({...vistoriaData, comodos: cp})}} /></div></div>
+                          <div key={i} className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                            <input type="text" className="font-bold text-xs bg-transparent w-full mb-2 uppercase" value={c.nome} onChange={e => {const cp = [...vistoriaData.comodos]; cp[i].nome = e.target.value.toUpperCase(); setVistoriaData({...vistoriaData, comodos: cp})}} />
+                            <div className="flex gap-2">
+                                <select className="text-[10px] p-2 rounded-lg border bg-white font-bold uppercase" value={c.estado} onChange={e => {const cp = [...vistoriaData.comodos]; cp[i].estado = e.target.value.toUpperCase(); setVistoriaData({...vistoriaData, comodos: cp})}}>
+                                    <option>BOM</option>
+                                    <option>REGULAR</option>
+                                    <option>RUIM</option>
+                                </select>
+                                <input type="text" className="flex-grow text-[10px] p-2 rounded-lg border bg-white uppercase font-medium" placeholder="OBS" value={c.obs} onChange={e => {const cp = [...vistoriaData.comodos]; cp[i].obs = e.target.value.toUpperCase(); setVistoriaData({...vistoriaData, comodos: cp})}} />
+                            </div>
+                          </div>
                        ))}
                     </div>
-                    <label className="border-2 border-dashed border-gray-200 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50"><Camera className="text-gray-300" size={32}/><span className="text-[10px] font-black mt-2 uppercase">Anexar Provas</span><input type="file" multiple className="hidden" accept="image/*" onChange={handleVistoriaPhotoUpload}/></label>
+                    <label className="border-2 border-dashed border-gray-200 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50">
+                        <Camera className="text-gray-300" size={32}/>
+                        <span className="text-[10px] font-black mt-2 uppercase">Anexar Provas</span>
+                        <input type="file" multiple className="hidden" accept="image/*" onChange={handleVistoriaPhotoUpload}/>
+                    </label>
                  </div>
               </div>
            </div>
            <div className="lg:col-span-7 bg-gray-200 p-8 rounded-[3rem] overflow-y-auto max-h-[75vh] shadow-inner no-scrollbar flex flex-col items-center">
-              <div ref={laudoRef} className="bg-white p-[50px] shadow-2xl text-brand-dark flex flex-col font-outfit" style={{ width: '800px', minHeight: '1130px' }}>
-                 <div className="flex justify-between items-end border-b-2 border-brand-accent pb-6 mb-10"><div><h1 className="text-2xl font-black uppercase tracking-tighter">Laudo de Vistoria</h1><p className="text-[10px] text-brand-accent font-black uppercase tracking-[0.3em]">Certificação finHouse</p></div><div className="text-right text-[8px] text-gray-400 font-bold uppercase"><p>CNPJ: {COMPANY_CNPJ}</p><p>{COMPANY_ADDRESS.street}</p></div></div>
-                 <div className="grid grid-cols-2 gap-4 text-[11px] mb-10 bg-gray-50 p-6 rounded-2xl">
-                    <p><span className="font-black text-gray-400 uppercase">Endereço:</span> {vistoriaData.imovel || '---'}</p>
-                    <p><span className="font-black text-gray-400 uppercase">Data:</span> {new Date(vistoriaData.data).toLocaleDateString('pt-BR')}</p>
-                    <p><span className="font-black text-gray-400 uppercase">Inquilino:</span> {vistoriaData.inquilino || '---'}</p>
-                    <p><span className="font-black text-gray-400 uppercase">Vistoriador:</span> {vistoriaData.vistoriador || '---'}</p>
+              <div ref={laudoRef} className="bg-white p-[50px] shadow-2xl text-brand-dark flex flex-col font-sans" style={{ width: '800px', minHeight: '1130px' }}>
+                 <div className="flex justify-between items-end border-b-2 border-brand-accent pb-6 mb-10"><div><h1 className="text-2xl font-black uppercase tracking-tighter">Laudo de Vistoria</h1><p className="text-[10px] text-brand-accent font-black uppercase tracking-[0.3em]">Certificacao finHouse</p></div><div className="text-right text-[8px] text-gray-400 font-bold uppercase"><p>CNPJ: {COMPANY_CNPJ}</p><p>{COMPANY_ADDRESS.street}</p></div></div>
+                 <div className="grid grid-cols-2 gap-4 text-[11px] mb-10 bg-gray-50 p-6 rounded-2xl uppercase font-bold">
+                    <p><span className="font-black text-gray-400">Endereço:</span> {vistoriaData.imovel || '---'}</p>
+                    <p><span className="font-black text-gray-400">Data:</span> {new Date(vistoriaData.data).toLocaleDateString('pt-BR')}</p>
+                    <p><span className="font-black text-gray-400">Inquilino:</span> {vistoriaData.inquilino || '---'}</p>
+                    <p><span className="font-black text-gray-400">Vistoriador:</span> {vistoriaData.vistoriador || '---'}</p>
                  </div>
-                 <div className="space-y-4"><table className="w-full text-[10px]"><thead className="bg-brand-primary text-white"><tr><th className="p-3 text-left">Ambiente</th><th className="p-3 text-left">Estado</th><th className="p-3 text-left">Observações</th></tr></thead><tbody className="divide-y">{vistoriaData.comodos.map((c, i) => (<tr key={i}><td className="p-3 font-bold uppercase">{c.nome}</td><td className="p-3 uppercase font-bold">{c.estado}</td><td className="p-3 text-gray-400">{c.obs || 'Nenhuma ressalva.'}</td></tr>))}</tbody></table></div>
-                 <div className="mt-auto pt-10 border-t flex justify-between px-10"><div className="border-t w-40 pt-2 text-center text-[9px] font-black uppercase tracking-widest">Locatário</div><div className="border-t w-40 pt-2 text-center text-[9px] font-black uppercase tracking-widest">Vistoriador</div></div>
+                 <div className="space-y-4"><table className="w-full text-[10px]"><thead className="bg-brand-primary text-white uppercase font-black"><tr><th className="p-3 text-left">Ambiente</th><th className="p-3 text-left">Estado</th><th className="p-3 text-left">Observacoes</th></tr></thead><tbody className="divide-y">{vistoriaData.comodos.map((c, i) => (<tr key={i}><td className="p-3 font-bold uppercase">{c.nome}</td><td className="p-3 uppercase font-bold text-brand-accent">{c.estado}</td><td className="p-3 text-gray-500 uppercase">{c.obs || 'NENHUMA RESSALVA.'}</td></tr>))}</tbody></table></div>
+                 <div className="mt-auto pt-10 border-t flex justify-between px-10"><div className="border-t w-40 pt-2 text-center text-[9px] font-black uppercase tracking-widest">Locatario</div><div className="border-t w-40 pt-2 text-center text-[9px] font-black uppercase tracking-widest">Vistoriador</div></div>
               </div>
-              <div ref={anexoRef} className="bg-white p-[50px] shadow-2xl text-brand-dark flex flex-col font-outfit" style={{ width: '800px', minHeight: '1130px' }}><h2 className="text-xl font-black uppercase border-b-2 border-brand-accent pb-4 mb-8">Anexo Fotográfico</h2><div className="grid grid-cols-2 gap-8">{vistoriaPhotos.map((p, i) => (<div key={i} className="space-y-2 border p-3 rounded-2xl bg-gray-50"><div className="bg-white rounded-xl overflow-hidden flex items-center justify-center h-[180px]"><img src={p.url} className="max-w-full h-auto max-h-full object-contain" crossOrigin="anonymous" /></div><p className="text-[10px] font-black uppercase text-brand-primary">#{i + 1} Registro Local</p><p className="text-[9px] text-gray-500 uppercase">{p.label}</p></div>))}</div></div>
+              <div ref={anexoRef} className="bg-white p-[50px] shadow-2xl text-brand-dark flex flex-col font-sans" style={{ width: '800px', minHeight: '1130px' }}><h2 className="text-xl font-black uppercase border-b-2 border-brand-accent pb-4 mb-8">Anexo Fotografico</h2><div className="grid grid-cols-2 gap-8">{vistoriaPhotos.map((p, i) => (<div key={i} className="space-y-2 border p-3 rounded-2xl bg-gray-50"><div className="bg-white rounded-xl overflow-hidden flex items-center justify-center h-[180px]"><img src={p.url} className="max-w-full h-auto max-h-full object-contain" crossOrigin="anonymous" /></div><p className="text-[10px] font-black uppercase text-brand-primary">#{i + 1} REGISTRO LOCAL</p></div>))}</div></div>
            </div>
         </div>
       )}
 
-      {activeTab === 'checklist' && (
-         <div className="max-w-5xl mx-auto px-4 animate-fade-in-up">
-            <div className="bg-white rounded-[3rem] shadow-sm border border-gray-100 overflow-hidden p-10">
-               <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-12">
-                  <h3 className="text-2xl font-black text-brand-primary flex items-center gap-2 uppercase tracking-tighter"><Scale className="text-brand-accent" /> Auditoria Jurídica</h3>
-                  <div className="flex bg-gray-100 p-1 rounded-xl">
-                     <button onClick={() => setChecklistRole('buyer')} className={`px-6 py-2 rounded-lg text-[10px] font-black uppercase ${checklistRole === 'buyer' ? 'bg-brand-primary text-white shadow-lg' : 'text-gray-400'}`}>Comprador</button>
-                     <button onClick={() => setChecklistRole('seller')} className={`px-6 py-2 rounded-lg text-[10px] font-black uppercase ${checklistRole === 'seller' ? 'bg-brand-primary text-white shadow-lg' : 'text-gray-400'}`}>Vendedor</button>
-                  </div>
-               </div>
-               <div className="bg-brand-primary p-10 rounded-[2.5rem] relative overflow-hidden">
-                  <pre className="font-mono text-[11px] text-gray-300 leading-loose uppercase">{generateChecklist()}</pre>
-                  <button onClick={() => {navigator.clipboard.writeText(generateChecklist()); setChecklistCopied(true); setTimeout(()=>setChecklistCopied(false), 2000)}} className="absolute top-10 right-10 bg-brand-accent text-white px-6 py-2 rounded-full font-black text-[10px] uppercase shadow-xl hover:scale-110 transition-transform">{checklistCopied ? 'Copiado!' : 'Copiar Lista'}</button>
-               </div>
-            </div>
-         </div>
-      )}
-
+      {/* --- TAB: CALCULATOR (RESTORED FULL) --- */}
       {activeTab === 'calculator' && (
          <div className="max-w-5xl mx-auto px-4 animate-fade-in-up">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-white rounded-[3rem] shadow-sm border border-gray-100 overflow-hidden">
                <div className="p-10 space-y-6">
-                  <h3 className="text-xl font-black text-brand-primary uppercase tracking-tighter flex items-center gap-2"><PieChart className="text-brand-accent" /> Simulação SAC</h3>
-                  <div><label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Valor Imóvel</label><input type="number" className="w-full p-4 border rounded-2xl bg-gray-50 text-sm font-bold" value={calcData.propertyValue} onChange={e => setCalcData({...calcData, propertyValue: Number(e.target.value)})} /></div>
-                  <div><label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Entrada</label><input type="number" className="w-full p-4 border rounded-2xl bg-gray-50 text-sm font-bold" value={calcData.downPayment} onChange={e => setCalcData({...calcData, downPayment: Number(e.target.value)})} /></div>
+                  <h3 className="text-xl font-black text-brand-primary uppercase tracking-tighter flex items-center gap-2"><PieChart className="text-brand-accent" /> Simulacao SAC</h3>
+                  
+                  <div className="space-y-4">
+                    <div>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Valor Imovel</label>
+                        <input type="number" className="w-full p-4 border border-gray-100 rounded-2xl bg-gray-50 text-sm font-bold uppercase focus:ring-2 focus:ring-brand-accent outline-none" value={calcData.propertyValue} onChange={e => setCalcData({...calcData, propertyValue: Number(e.target.value)})} />
+                    </div>
+                    
+                    <div>
+                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Entrada</label>
+                        <input type="number" className="w-full p-4 border border-gray-100 rounded-2xl bg-gray-50 text-sm font-bold uppercase focus:ring-2 focus:ring-brand-accent outline-none" value={calcData.downPayment} onChange={e => setCalcData({...calcData, downPayment: Number(e.target.value)})} />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Taxa (% AA)</label>
+                            <input type="number" step="0.1" className="w-full p-4 border border-gray-100 rounded-2xl bg-gray-50 text-sm font-bold uppercase focus:ring-2 focus:ring-brand-accent outline-none" value={calcData.interestRate} onChange={e => setCalcData({...calcData, interestRate: Number(e.target.value)})} />
+                        </div>
+                        <div>
+                            <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Anos</label>
+                            <input type="number" className="w-full p-4 border border-gray-100 rounded-2xl bg-gray-50 text-sm font-bold uppercase focus:ring-2 focus:ring-brand-accent outline-none" value={calcData.years} onChange={e => setCalcData({...calcData, years: Number(e.target.value)})} />
+                        </div>
+                    </div>
+                  </div>
                </div>
+               
                <div className="bg-brand-primary p-10 text-white flex flex-col justify-center">
-                  <p className="text-[10px] font-black text-brand-accent uppercase tracking-widest mb-2">Estimativa de Parcela</p>
+                  <p className="text-[10px] font-black text-brand-accent uppercase tracking-widest mb-2">Estimativa de Parcela (INICIAL)</p>
                   <p className="text-5xl font-black">{formatCurrency(((calcData.propertyValue - calcData.downPayment) / (calcData.years * 12)) + ((calcData.propertyValue - calcData.downPayment) * (calcData.interestRate/100/12)))}</p>
-                  <Button variant="white" fullWidth className="mt-10 py-4 shadow-2xl" onClick={() => window.open(`https://wa.me/${COMPANY_PHONE}`, '_blank')}>Aprovar Crédito</Button>
+                  
+                  <div className="mt-8 space-y-2 border-t border-white/10 pt-8">
+                     <div className="flex justify-between text-xs">
+                        <span className="text-gray-400 uppercase font-black">Financiado:</span>
+                        <span className="font-bold">{formatCurrency(calcData.propertyValue - calcData.downPayment)}</span>
+                     </div>
+                     <div className="flex justify-between text-xs">
+                        <span className="text-gray-400 uppercase font-black">Amortizacao Mes:</span>
+                        <span className="font-bold">{formatCurrency((calcData.propertyValue - calcData.downPayment) / (calcData.years * 12))}</span>
+                     </div>
+                     <div className="flex justify-between text-xs">
+                        <span className="text-gray-400 uppercase font-black">Juros Mes:</span>
+                        <span className="font-bold">{formatCurrency((calcData.propertyValue - calcData.downPayment) * (calcData.interestRate/100/12))}</span>
+                     </div>
+                  </div>
+
+                  <Button variant="white" fullWidth className="mt-10 py-4 shadow-2xl uppercase font-black tracking-widest" onClick={() => window.open(`https://wa.me/${COMPANY_PHONE}`, '_blank')}>Aprovar Credito</Button>
                </div>
             </div>
          </div>
