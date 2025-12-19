@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Users, ImageIcon, Sparkles, ClipboardList, Calculator, FileText } from 'lucide-react';
+import { Users, ImageIcon, Sparkles, ClipboardList, Calculator, FileText, BarChart3 } from 'lucide-react';
 
 // Importação dos componentes modulares
 import LeadsTab from '../components/broker/LeadsTab';
@@ -9,12 +9,14 @@ import ScriptsTab from '../components/broker/ScriptsTab';
 import VistoriaTab from '../components/broker/VistoriaTab';
 import SimuladorTab from '../components/broker/SimuladorTab';
 import ChecklistTab from '../components/broker/ChecklistTab';
+import CmaTab from '../components/broker/CmaTab';
 
 const BrokerTools: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'leads' | 'marketing' | 'pitch' | 'vistoria' | 'calculator' | 'checklist'>('leads');
+  const [activeTab, setActiveTab] = useState<'leads' | 'marketing' | 'pitch' | 'vistoria' | 'calculator' | 'checklist' | 'cma'>('leads');
 
   const tabs = [
     { id: 'leads', label: 'Leads (CRM)', icon: Users },
+    { id: 'cma', label: 'Comparativos', icon: BarChart3 },
     { id: 'marketing', label: 'Marketing', icon: ImageIcon },
     { id: 'pitch', label: 'Scripts', icon: Sparkles },
     { id: 'vistoria', label: 'Vistoria', icon: ClipboardList },
@@ -30,6 +32,7 @@ const BrokerTools: React.FC = () => {
       case 'vistoria': return <VistoriaTab />;
       case 'calculator': return <SimuladorTab />;
       case 'checklist': return <ChecklistTab />;
+      case 'cma': return <CmaTab />;
       default: return null;
     }
   };
@@ -39,7 +42,7 @@ const BrokerTools: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 mb-10">
         <div className="bg-brand-primary rounded-[2.5rem] p-8 md:p-12 text-white shadow-2xl relative overflow-hidden flex flex-col xl:flex-row justify-between items-center gap-8">
           <div className="relative z-10 text-center xl:text-left">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-brand-accent/30 text-brand-accent border border-brand-accent/50 text-[10px] font-black uppercase tracking-[0.2em] mb-4">CÉLULA DE INTELIGÊNCIA</span>
+            <span className="inline-block px-4 py-1.5 rounded-full bg-brand-accent/30 text-brand-accent border border-brand-accent/50 text-[10px] font-black uppercase tracking-[0.2em] mb-4">Célula de Inteligência</span>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tighter mb-2">finHouse <span className="text-brand-accent">OS</span></h1>
             <p className="text-gray-400 text-sm max-w-md font-light">Ferramentas de alta performance integradas em um único ecossistema.</p>
           </div>
